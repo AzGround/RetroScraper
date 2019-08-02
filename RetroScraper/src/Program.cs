@@ -11,8 +11,10 @@ namespace RetroScraper
 {
     class Program
     {
-        private static string fileOut = AppDomain.CurrentDomain.BaseDirectory + "musiclist.txt";
-        private static string fileConf = AppDomain.CurrentDomain.BaseDirectory + "config.ini";
+        private static string nameOut = "musiclist.txt";
+        private static string nameConf = "config.ini";
+        private static string fileOut = AppDomain.CurrentDomain.BaseDirectory + nameOut;
+        private static string fileConf = AppDomain.CurrentDomain.BaseDirectory + nameConf;
         private static INIManager manager = new INIManager(fileConf);
         private static DateTime dateFrom;
         private static DateTime dateTo;
@@ -28,7 +30,7 @@ namespace RetroScraper
                 GetHtmlAsync(dateCur.ToString("dd.MM.yyyy")).Wait();
             }
 
-            Console.WriteLine("Print Enter to exit.");
+            Console.WriteLine($"\nShow \"{nameOut}\" to show music list\n\nPrint Enter to exit.");
             Console.ReadLine();
         }
 
@@ -41,7 +43,7 @@ namespace RetroScraper
                 manager.WritePrivateString("General", "dateFrom", "");
                 manager.WritePrivateString("General", "dateTo", "");
 
-                Console.WriteLine("Configuration file don't exist!\nFile config.ini initialized.");
+                Console.WriteLine($"Configuration file don't exist!\n\nFile \"{nameConf}\" initialized.");
                 Console.ReadLine();
                 return 0;
             }
