@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using RetroScraper.RetroParser;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -17,7 +16,6 @@ namespace RetroScraper
         private static INIManager manager = new INIManager(fileConf);
         private static DateTime dateFrom;
         private static DateTime dateTo;
-        private static bool isFileLocked = false;
 
         static void Main(string[] args)
         {
