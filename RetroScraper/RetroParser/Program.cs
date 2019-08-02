@@ -11,9 +11,12 @@ namespace RetroScraper
 {
     class Program
     {
+        private static string fileName = "musiclist.txt";
         static void Main(string[] args)
         {
+            File.WriteAllText(fileName, "", Encoding.UTF8);
             GetHtmlAsync();
+
             Console.ReadLine();
         }
 
@@ -42,20 +45,9 @@ namespace RetroScraper
                 string artist = musicInfo.Descendants("span").FirstOrDefault().InnerText;
                 string title = musicInfo.Descendants("em").FirstOrDefault().InnerText;
 
-                Console.WriteLine($"{time}|{artist}|{title}");
-                Console.WriteLine();
+
+                File.AppendAllText(fileName, $"{time}|{artist}|{title}\n", Encoding.UTF8);
             }
-
-            //saveToFile(html.Result, "html.txt", "");
-        }
-
-        static private void saveToFile(string text, string name, string path)
-        {
-            File.WriteAllText(path + name, text, Encoding.UTF8);
-            //using (StreamWriter sw = File.CreateText(path + name))
-            //{
-            //    sw.WriteLine(text);
-            //}
         }
     }
 }
