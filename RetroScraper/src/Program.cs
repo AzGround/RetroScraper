@@ -23,7 +23,14 @@ namespace RetroScraper
         {
             if (InitConfig() == 0)
                 return;
-            File.WriteAllText(fileOut, "", Encoding.UTF8);
+
+            if (File.Exists(fileOut))
+            {
+                using (var stream = new StreamWriter(fileOut))
+                {
+                    stream.Write("");
+                }
+            }
 
             try
             {
@@ -32,12 +39,14 @@ namespace RetroScraper
                     GetHtmlAsync(dateCur.ToString("dd.MM.yyyy")).Wait();
                 }
 
-                Console.WriteLine($"\nShow \"{nameOut}\" to show music list\n\nPrint Enter to exit.");
+                Console.WriteLine($"\nShow \"{nameOut}\" to show music list");
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
+
+            Console.WriteLine("\nPrint Enter to exit.");
 
             Console.ReadLine();
         }
@@ -46,7 +55,11 @@ namespace RetroScraper
         {
             if (!File.Exists(fileConf))
             {
-                File.WriteAllText(fileConf, ";Date format dd.mm.yyyy", Encoding.UTF8);
+                using (var stream = new StreamWriter(fileConf))
+                {
+                    stream.WriteLine("; Date format dd.mm.yyyy");
+                }
+
                 manager.WritePrivateString("General", "url", "https://retrofm.ru/index.php?go=Playlist");
                 manager.WritePrivateString("General", "dateFrom", "");
                 manager.WritePrivateString("General", "dateTo", "");
@@ -98,21 +111,25 @@ namespace RetroScraper
                 musicItems.Reverse();
 
                 int i = 0;
-                foreach (var item in musicItems)
-                {
-                    string time = item.Descendants("span")
-                        .Where(node => node.HasClass("time")).FirstOrDefault().InnerText;
-                    var musicInfo = item.Descendants("div")
-                        .Where(node => node.HasClass("jp-title")).FirstOrDefault();
-                    string artist = musicInfo.Descendants("span").FirstOrDefault().InnerText;
-                    string title = musicInfo.Descendants("em").FirstOrDefault().InnerText;
 
-                    File.AppendAllText(fileOut, $"{date}|{time}|{artist}|{title}\n", Encoding.UTF8);
-                    ++i;
+                using (var stream = new StreamWriter(fileOut, true))
+                {
+                    foreach (var item in musicItems)
+                    {
+                        string time = item.Descendants("span")
+                            .Where(node => node.HasClass("time")).FirstOrDefault().InnerText;
+                        var musicInfo = item.Descendants("div")
+                            .Where(node => node.HasClass("jp-title")).FirstOrDefault();
+                        string artist = musicInfo.Descendants("span").FirstOrDefault().InnerText;
+                        string title = musicInfo.Descendants("em").FirstOrDefault().InnerText;
+
+                        await stream.WriteLineAsync($"{date}|{time}|{artist}|{title}");
+                        ++i;
+                    }
                 }
 
                 if (i == musicItems.Count)
-                    Console.WriteLine($"{date} - Done!");
+                    Console.WriteLine($"{date} - Done! | {musicItems.Count} elements.");
                 else
                     Console.WriteLine($"{date} - Have error! | {i} of {musicItems.Count} elements complete.");
             }
