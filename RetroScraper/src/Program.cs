@@ -25,12 +25,20 @@ namespace RetroScraper
                 return;
             File.WriteAllText(fileOut, "", Encoding.UTF8);
 
-            for (DateTime dateCur = dateFrom; dateCur <= dateTo; dateCur = dateCur.AddDays(1))
+            try
             {
-                GetHtmlAsync(dateCur.ToString("dd.MM.yyyy")).Wait();
+                for (DateTime dateCur = dateFrom; dateCur <= dateTo; dateCur = dateCur.AddDays(1))
+                {
+                    GetHtmlAsync(dateCur.ToString("dd.MM.yyyy")).Wait();
+                }
+
+                Console.WriteLine($"\nShow \"{nameOut}\" to show music list\n\nPrint Enter to exit.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
 
-            Console.WriteLine($"\nShow \"{nameOut}\" to show music list\n\nPrint Enter to exit.");
             Console.ReadLine();
         }
 
@@ -73,7 +81,6 @@ namespace RetroScraper
 
         private static async Task GetHtmlAsync(string date)
         {
-            Console.Write(date);
             var url = manager.GetPrivateString("General", "url") + "&date=" + date + "&time_start=00%3A00&time_stop=23%3A59";
 
             var httpClient = new HttpClient();
@@ -105,17 +112,17 @@ namespace RetroScraper
                 }
 
                 if (i == musicItems.Count)
-                    Console.WriteLine(" - Done!");
+                    Console.WriteLine($"{date} - Done!");
                 else
-                    Console.WriteLine(" - Have error! | {i} of {musicItems.Count} elements complete.");
+                    Console.WriteLine($"{date} - Have error! | {i} of {musicItems.Count} elements complete.");
             }
-            catch (HttpRequestException e)
+            catch (HttpRequestException)
             {
-                Console.WriteLine(" - Page doesn't exist.");
+                throw new Exception("Page doesn't exist.");
             }
-            catch (IOException e)
+            catch (Exception)
             {
-                Console.WriteLine(" - Error with write file.");
+                throw new Exception("Error with write file.");
             }
         }
     }
